@@ -10,5 +10,14 @@
             "name": "Tomasz Wójcik",
             "email": "tomasz.prgtw.wojcik@gmail.com"
         }
-    ]
+    ],
+    "require": {
+        "php": ">=5.5",
+        "propel/propel1": "~1.6"
+    },
+    "autoload": {
+        "classmap": [
+            "prgTW/SnapshottableBehavior"
+        ]
+    }
 }
