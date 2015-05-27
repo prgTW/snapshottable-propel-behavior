@@ -1,0 +1,14 @@
+{
+    "name": "prgtw/snapshottable-propel-behavior",
+    "description": "Propel behavior for creating snapshots of models",
+    "require": {
+        "propel/propel1": "dev-master"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tomasz Wójcik",
+            "email": "tomasz.prgtw.wojcik@gmail.com"
+        }
+    ]
+}
