@@ -1,6 +1,7 @@
 {
     "name": "prgtw/snapshottable-propel-behavior",
     "description": "Propel behavior for creating snapshots of models",
+    "type": "propel-behavior",
     "license": "MIT",
     "authors": [
         {
@@ -16,5 +17,9 @@
         "psr-0": {
             "prgTW\\SnapshottableBehavior": "./prgTW/SnapshottableBehavior"
         }
+    },
+    "extra": {
+        "name": "snapshottable",
+        "class": "\\prgTW\\SnapshottableBehavior\\SnapshottableBehavior"
     }
 }
