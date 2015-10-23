@@ -41,7 +41,7 @@ class SnapshottableBehavior extends Behavior
 		$tables   = $database->getTables();
 		foreach ($tables as $table)
 		{
-			if ($table->hasBehavior($this->getName()))
+			if ($table->hasBehavior($this->getId()))
 			{
 				continue;
 			}
@@ -94,7 +94,10 @@ class SnapshottableBehavior extends Behavior
 		]);
 
 		$addSnapshotAt = true;
-		if ($database->hasBehavior('timestampable'))
+		$hasTimestampableBehavior = 0 < count(array_filter($database->getBehaviors(), function (Behavior $behavior) {
+			return 'timestampable' === $behavior->getName();
+		}));
+		if ($hasTimestampableBehavior)
 		{
 			$addSnapshotAt         = false;
 			$timestampableBehavior = clone $database->getBehavior('timestampable');
