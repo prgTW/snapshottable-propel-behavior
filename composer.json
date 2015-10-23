@@ -1,9 +1,6 @@
 {
     "name": "prgtw/snapshottable-propel-behavior",
     "description": "Propel behavior for creating snapshots of models",
-    "require": {
-        "propel/propel1": "dev-master"
-    },
     "license": "MIT",
     "authors": [
         {
@@ -13,11 +10,11 @@
     ],
     "require": {
         "php": ">=5.5",
-        "propel/propel1": "~1.6"
+        "propel/propel": "~2.0.0-dev"
     },
     "autoload": {
-        "classmap": [
-            "prgTW/SnapshottableBehavior"
-        ]
+        "psr-0": {
+            "prgTW\\SnapshottableBehavior": "./prgTW/SnapshottableBehavior"
+        }
     }
 }

@@ -1,19 +1,10 @@
 <?php
 
-/**
- * This file is part of the Propel package.
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * @license    MIT License
- */
+namespace prgTW\SnapshottableBehavior;
 
-/**
- * Keeps tracks of an ActiveRecord object, even after deletion
- *
- * @author     François Zaninotto
- * @package    propel.generator.behavior.archivable
- */
+use Propel\Generator\Builder\Om\ObjectBuilder;
+use Propel\Generator\Model\Table;
+
 class SnapshottableBehaviorObjectBuilderModifier
 {
 	/** @var SnapshottableBehavior */
@@ -32,13 +23,11 @@ class SnapshottableBehaviorObjectBuilderModifier
 	}
 
 	/**
-	 * Add object attributes to the built class.
+	 * @param ObjectBuilder $builder
 	 *
-	 * @param PHP5ObjectBuilder $builder
-	 *
-	 * @return string The PHP code to be added to the builder.
+	 * @return string
 	 */
-	public function objectAttributes(PHP5ObjectBuilder $builder)
+	public function objectAttributes(ObjectBuilder $builder)
 	{
 		if (!$this->behavior->hasSnapshotClass())
 		{
@@ -53,9 +42,11 @@ class SnapshottableBehaviorObjectBuilderModifier
 	}
 
 	/**
-	 * @return string the PHP code to be added to the builder
+	 * @param ObjectBuilder $builder
+	 *
+	 * @return string
 	 */
-	public function objectMethods($builder)
+	public function objectMethods(ObjectBuilder $builder)
 	{
 		if ($this->behavior->hasSnapshotClass())
 		{
@@ -76,9 +67,11 @@ class SnapshottableBehaviorObjectBuilderModifier
 	}
 
 	/**
-	 * @return string the PHP code to be added to the builder
+	 * @param ObjectBuilder $builder
+	 *
+	 * @return string
 	 */
-	public function addSnapshot($builder)
+	public function addSnapshot(ObjectBuilder $builder)
 	{
 		$referenceColumnName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_REFERENCE_COLUMN);
 

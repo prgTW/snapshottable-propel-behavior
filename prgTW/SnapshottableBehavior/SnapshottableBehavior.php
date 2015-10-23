@@ -1,6 +1,13 @@
 <?php
 
-require_once dirname(__FILE__) . '/SnapshottableBehaviorObjectBuilderModifier.php';
+namespace prgTW\SnapshottableBehavior;
+
+use Propel\Generator\Builder\Om\ObjectBuilder;
+use Propel\Generator\Model\Behavior;
+use Propel\Generator\Model\Column;
+use Propel\Generator\Model\ForeignKey;
+use Propel\Generator\Model\Index;
+use Propel\Generator\Model\Table;
 
 class SnapshottableBehavior extends Behavior
 {
@@ -53,7 +60,7 @@ class SnapshottableBehavior extends Behavior
 	{
 		if ($this->getParameter(self::PARAMETER_SNAPSHOT_CLASS) && $this->getParameter(self::PARAMETER_SNAPSHOT_TABLE))
 		{
-			throw new InvalidArgumentException(vsprintf('Please set only one of the two parameters "%s" and "%s".', [
+			throw new \InvalidArgumentException(vsprintf('Please set only one of the two parameters "%s" and "%s".', [
 				self::PARAMETER_SNAPSHOT_CLASS,
 				self::PARAMETER_SNAPSHOT_TABLE,
 			]));
@@ -210,7 +217,12 @@ class SnapshottableBehavior extends Behavior
 		return $this->snapshotTable;
 	}
 
-	public function getSnapshotTablePhpName($builder)
+	/**
+	 * @param ObjectBuilder $builder
+	 *
+	 * @return array
+	 */
+	public function getSnapshotTablePhpName(ObjectBuilder $builder)
 	{
 		if ($this->hasSnapshotClass())
 		{
@@ -239,6 +251,8 @@ class SnapshottableBehavior extends Behavior
 
 			return $this->getSnapshotTable()->getColumn($snapshotAtColumn);
 		}
+
+		return null;
 	}
 
 	/**
