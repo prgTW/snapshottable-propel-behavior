@@ -15,9 +15,10 @@
     },
     "autoload": {
         "psr-0": {
-            "prgTW\\SnapshottableBehavior": "./prgTW/SnapshottableBehavior"
+            "prgTW\\SnapshottableBehavior": "./"
         }
     },
+    "target-dir": "prgTW/SnapshottableBehavior",
     "extra": {
         "name": "snapshottable",
         "class": "\\prgTW\\SnapshottableBehavior\\SnapshottableBehavior"
