@@ -1,14 +1,14 @@
 /**
- * Copy the data of the current object into a $snapshotTablePhpName snapshot object.
+ * Copy the data of the current object into a <?php echo $snapshotTablePhpName ?> snapshot object.
  * The snapshot object is then saved.
  *
- * @param PropelPDO $con Optional connection object
+ * @param ConnectionInterface $con Optional connection object
  *
  * @throws PropelException If the object is new
  *
  * @return <?php echo $snapshotTablePhpName ?> The object based on this object
  */
-public function snapshot(PropelPDO $con = null)
+public function snapshot(ConnectionInterface $con = null)
 {
 	if ($this->isNew()) {
 		throw new PropelException('New objects cannot be snapshoted. You must save the current object before calling snapshot().');
