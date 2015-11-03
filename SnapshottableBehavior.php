@@ -144,6 +144,7 @@ class SnapshottableBehavior extends Behavior
 		]);
 
 		$index = new Index;
+		$index->setName($this->getParameter(self::PARAMETER_REFERENCE_COLUMN));
 		if ($primaryKeyColumn->getSize())
 		{
 			$index->addColumn([
@@ -160,6 +161,10 @@ class SnapshottableBehavior extends Behavior
 		$snapshotTable->addIndex($index);
 
 		$foreignKey = new ForeignKey;
+		$foreignKey->setName(vsprintf('fk_%s_%s', [
+			$snapshotTable->getOriginCommonName(),
+			$this->getParameter(self::PARAMETER_REFERENCE_COLUMN),
+		]));
 		$foreignKey->setOnUpdate('CASCADE');
 		$foreignKey->setOnDelete('SET NULL');
 		$foreignKey->setForeignTableCommonName($this->getTable()->getCommonName());
@@ -178,7 +183,6 @@ class SnapshottableBehavior extends Behavior
 		foreach ($indices as $index)
 		{
 			$copiedIndex = clone $index;
-			$copiedIndex->setName('');
 			$snapshotTable->addIndex($copiedIndex);
 		}
 
@@ -188,6 +192,7 @@ class SnapshottableBehavior extends Behavior
 		foreach ($unices as $unique)
 		{
 			$index   = new Index;
+			$index->setName($unique->getName());
 			$columns = $unique->getColumns();
 			foreach ($columns as $columnName)
 			{
