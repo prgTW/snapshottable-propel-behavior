@@ -126,6 +126,7 @@ class SnapshottableBehavior extends Behavior
 			}
 
 			$columnInSnapshotTable = clone $column;
+			$columnInSnapshotTable->setNotNull(false);
 			if ($columnInSnapshotTable->hasReferrers())
 			{
 				$columnInSnapshotTable->clearReferrers();
