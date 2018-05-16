@@ -3,8 +3,8 @@
 namespace prgTW\SnapshottableBehavior;
 
 use Propel\Generator\Builder\Om\ObjectBuilder;
-use Propel\Generator\Model\Index;
 use Propel\Generator\Model\Table;
+use Propel\Generator\Model\Unique;
 
 class SnapshottableBehaviorObjectBuilderModifier
 {
@@ -78,10 +78,10 @@ class SnapshottableBehaviorObjectBuilderModifier
 
         $uniqueIndexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
         $snapshotTable   = $this->behavior->getSnapshotTable();
-        /** @var Index $uniqueIndex */
+        /** @var Unique $uniqueIndex */
         $uniqueIndex = reset(
-            array_filter($this->behavior->getSnapshotTable()->getIndices(),
-                function (Index $i) use ($uniqueIndexName) {
+            array_filter($this->behavior->getSnapshotTable()->getUnices(),
+                function (Unique $i) use ($uniqueIndexName) {
                     return $uniqueIndexName === $i->getName();
                 }
             )
