@@ -9,6 +9,7 @@ use Propel\Generator\Model\Domain;
 use Propel\Generator\Model\ForeignKey;
 use Propel\Generator\Model\Index;
 use Propel\Generator\Model\Table;
+use Propel\Generator\Model\Unique;
 
 class SnapshottableBehavior extends Behavior
 {
@@ -236,9 +237,9 @@ class SnapshottableBehavior extends Behavior
 
         $uniqueColumns = explode(',', $this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS));
         $uniqueColumns = array_filter(array_map('trim', $uniqueColumns));
-        $index         = new Index;
-        $index->setName($this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME));
-        $index->addColumn(['name' => $this->getParameter(self::PARAMETER_REFERENCE_COLUMN)]);
+        $unique        = new Unique;
+        $unique->setName($this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME));
+        $unique->addColumn(['name' => $this->getParameter(self::PARAMETER_REFERENCE_COLUMN)]);
         foreach ($uniqueColumns as $uniqueColumnDef)
         {
             if (!preg_match('/^(?P<columnName>\\w+)(?:\\((?P<columnSize>\\d+)\\))?$/uis', $uniqueColumnDef, $matches))
@@ -248,14 +249,14 @@ class SnapshottableBehavior extends Behavior
 
             if (isset($matches['columnSize']))
             {
-                $index->addColumn(['name' => $matches['columnName'], 'size' => $matches['columnSize']]);
+                $unique->addColumn(['name' => $matches['columnName'], 'size' => $matches['columnSize']]);
             }
             else
             {
-                $index->addColumn(['name' => $matches['columnName']]);
+                $unique->addColumn(['name' => $matches['columnName']]);
             }
         }
-        $snapshotTable->addIndex($index);
+        $snapshotTable->addUnique($unique);
 
         $this->snapshotTable = $snapshotTable;
     }
