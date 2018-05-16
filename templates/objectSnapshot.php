@@ -14,13 +14,18 @@ public function snapshot(ConnectionInterface $con = null)
 		throw new PropelException('New objects cannot be snapshoted. You must save the current object before calling snapshot().');
 	}
 
-	$snapshot = new <?php echo $snapshotTablePhpName ?>;
-	$snapshot->set<?php echo $referenceColumn->getPhpName() ?>($this->get<?php echo $primaryKeyColumn->getPhpName() ?>());
-	$this->copyInto($snapshot, $deepCopy = false, $makeNew = false);
+	$snapshot = (new <?php echo $queryClassName; ?>)
+<?php foreach (array_slice($uniqueColumns, 1) as $columnPhpName): ?>
+		->filterBy<?php echo $columnPhpName; ?>($this->get<?php echo $columnPhpName; ?>())
+<?php endforeach; ?>
+		->findOneOrCreate();
+
 <?php if ($snapshotAtColumn): ?>
-	$snapshot->set<?php echo $snapshotAtColumn->getPhpName() ?>(time());
+	if ($snapshot->isNew()) {
+		$snapshot->set<?php echo $snapshotAtColumn->getPhpName() ?>(time());
+		$snapshot->save(<?php if(!$hasSnapshotClass): ?>$con<?php endif; ?>);
+	}
 <?php endif; ?>
-	$snapshot->save(<?php if(!$hasSnapshotClass): ?>$con<?php endif; ?>);
 
 	return $snapshot;
 }

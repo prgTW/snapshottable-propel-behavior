@@ -3,84 +3,103 @@
 namespace prgTW\SnapshottableBehavior;
 
 use Propel\Generator\Builder\Om\ObjectBuilder;
+use Propel\Generator\Model\Index;
 use Propel\Generator\Model\Table;
 
 class SnapshottableBehaviorObjectBuilderModifier
 {
-	/** @var SnapshottableBehavior */
-	protected $behavior;
+    /** @var SnapshottableBehavior */
+    protected $behavior;
 
-	/** @var Table */
-	private $table;
+    /** @var Table */
+    private $table;
 
-	/**
-	 * @param SnapshottableBehavior $behavior
-	 */
-	public function __construct(SnapshottableBehavior $behavior)
-	{
-		$this->behavior = $behavior;
-		$this->table    = $behavior->getTable();
-	}
+    /**
+     * @param SnapshottableBehavior $behavior
+     */
+    public function __construct(SnapshottableBehavior $behavior)
+    {
+        $this->behavior = $behavior;
+        $this->table    = $behavior->getTable();
+    }
 
-	/**
-	 * @param ObjectBuilder $builder
-	 *
-	 * @return string
-	 */
-	public function objectAttributes(ObjectBuilder $builder)
-	{
-		if (!$this->behavior->hasSnapshotClass())
-		{
-			$snapshotTable    = $this->behavior->getSnapshotTable();
-			$stubQueryBuilder = $builder->getNewStubQueryBuilder($snapshotTable);
-			$builder->declareClassFromBuilder($stubQueryBuilder);
-		}
+    /**
+     * @param ObjectBuilder $builder
+     *
+     * @return string
+     */
+    public function objectAttributes(ObjectBuilder $builder)
+    {
+        if (!$this->behavior->hasSnapshotClass())
+        {
+            $snapshotTable    = $this->behavior->getSnapshotTable();
+            $stubQueryBuilder = $builder->getNewStubQueryBuilder($snapshotTable);
+            $builder->declareClassFromBuilder($stubQueryBuilder);
+        }
 
-		$script = '';
+        $script = '';
 
-		return $script;
-	}
+        return $script;
+    }
 
-	/**
-	 * @param ObjectBuilder $builder
-	 *
-	 * @return string
-	 */
-	public function objectMethods(ObjectBuilder $builder)
-	{
-		if ($this->behavior->hasSnapshotClass())
-		{
-			$snapshotClass = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_CLASS);
-			$builder->declareClass($snapshotClass);
-		}
-		else
-		{
-			$snapshotTable     = $this->behavior->getSnapshotTable();
-			$stubObjectBuilder = $builder->getNewStubObjectBuilder($snapshotTable);
-			$builder->declareClassFromBuilder($stubObjectBuilder);
-		}
+    /**
+     * @param ObjectBuilder $builder
+     *
+     * @return string
+     */
+    public function objectMethods(ObjectBuilder $builder)
+    {
+        if ($this->behavior->hasSnapshotClass())
+        {
+            $snapshotClass = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_CLASS);
+            $builder->declareClass($snapshotClass);
+        }
+        else
+        {
+            $snapshotTable     = $this->behavior->getSnapshotTable();
+            $stubObjectBuilder = $builder->getNewStubObjectBuilder($snapshotTable);
+            $builder->declareClassFromBuilder($stubObjectBuilder);
+        }
 
-		$script = '';
-		$script .= $this->addSnapshot($builder);
+        $script = '';
+        $script .= $this->addSnapshot($builder);
 
-		return $script;
-	}
+        return $script;
+    }
 
-	/**
-	 * @param ObjectBuilder $builder
-	 *
-	 * @return string
-	 */
-	public function addSnapshot(ObjectBuilder $builder)
-	{
-		$referenceColumnName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_REFERENCE_COLUMN);
+    /**
+     * @param ObjectBuilder $builder
+     *
+     * @return string
+     */
+    public function addSnapshot(ObjectBuilder $builder)
+    {
+        $referenceColumnName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_REFERENCE_COLUMN);
 
-		return $this->behavior->renderTemplate('objectSnapshot', [
-			'snapshotTablePhpName' => $this->behavior->getSnapshotTablePhpName($builder),
-			'referenceColumn'      => $this->behavior->getSnapshotTable()->getColumn($referenceColumnName),
-			'primaryKeyColumn'     => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
-			'snapshotAtColumn'     => $this->behavior->getSnapshotAtColumn(),
-			'hasSnapshotClass'     => $this->behavior->hasSnapshotClass(),
-		]);
-	}
+        $uniqueIndexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
+        $snapshotTable   = $this->behavior->getSnapshotTable();
+        /** @var Index $uniqueIndex */
+        $uniqueIndex = reset(
+            array_filter($this->behavior->getSnapshotTable()->getIndices(),
+                function (Index $i) use ($uniqueIndexName) {
+                    return $uniqueIndexName === $i->getName();
+                }
+            )
+        );
+        $vars        = [
+            'snapshotTablePhpName' => $this->behavior->getSnapshotTablePhpName($builder),
+            'referenceColumn'      => $this->behavior->getSnapshotTable()->getColumn($referenceColumnName),
+            'primaryKeyColumn'     => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
+            'snapshotAtColumn'     => $this->behavior->getSnapshotAtColumn(),
+            'hasSnapshotClass'     => $this->behavior->hasSnapshotClass(),
+            'queryClassName'       => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
+            'uniqueColumns'        => array_combine($uniqueIndex->getColumns(),
+                array_map(function ($name) {
+                    return $this->behavior->getSnapshotTable()->getColumn($name)->getPhpName();
+                }, $uniqueIndex->getColumns())
+            ),
+        ];
+
+        return $this->behavior->renderTemplate('objectSnapshot', $vars);
+    }
 }

@@ -21,6 +21,9 @@
     "target-dir": "prgTW/SnapshottableBehavior",
     "extra": {
         "name": "snapshottable",
-        "class": "\\prgTW\\SnapshottableBehavior\\SnapshottableBehavior"
+        "class": "\\prgTW\\SnapshottableBehavior\\SnapshottableBehavior",
+        "branch-alias": {
+            "dev-master": "3.0-dev"
+        }
     }
 }
