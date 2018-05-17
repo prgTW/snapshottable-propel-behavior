@@ -79,21 +79,23 @@ class SnapshottableBehaviorObjectBuilderModifier
         $uniqueIndexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
         $snapshotTable   = $this->behavior->getSnapshotTable();
         /** @var Unique $uniqueIndex */
-        $uniqueIndex = reset(
+        $uniqueIndex     = reset(
             array_filter($this->behavior->getSnapshotTable()->getUnices(),
                 function (Unique $i) use ($uniqueIndexName) {
                     return $uniqueIndexName === $i->getName();
                 }
             )
         );
-        $vars        = [
-            'snapshotTablePhpName' => $this->behavior->getSnapshotTablePhpName($builder),
-            'referenceColumn'      => $this->behavior->getSnapshotTable()->getColumn($referenceColumnName),
-            'primaryKeyColumn'     => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
-            'snapshotAtColumn'     => $this->behavior->getSnapshotAtColumn(),
-            'hasSnapshotClass'     => $this->behavior->hasSnapshotClass(),
-            'queryClassName'       => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
-            'uniqueColumns'        => array_combine($uniqueIndex->getColumns(),
+        $referenceColumn = $this->behavior->getSnapshotTable()->getColumn($referenceColumnName);
+        $vars            = [
+            'primaryKeyColumnPhpName' => $this->behavior->getTable()->getFirstPrimaryKeyColumn()->getPhpName(),
+            'snapshotTablePhpName'    => $this->behavior->getSnapshotTablePhpName($builder),
+            'referenceColumnPhpName'  => $referenceColumn->getPhpName(),
+            'primaryKeyColumn'        => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
+            'snapshotAtColumn'        => $this->behavior->getSnapshotAtColumn(),
+            'hasSnapshotClass'        => $this->behavior->hasSnapshotClass(),
+            'queryClassName'          => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
+            'uniqueColumns'           => array_combine($uniqueIndex->getColumns(),
                 array_map(function ($name) {
                     return $this->behavior->getSnapshotTable()->getColumn($name)->getPhpName();
                 }, $uniqueIndex->getColumns())
