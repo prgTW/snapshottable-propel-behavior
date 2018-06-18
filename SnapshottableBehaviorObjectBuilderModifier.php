@@ -104,19 +104,4 @@ class SnapshottableBehaviorObjectBuilderModifier
 
         return $this->behavior->renderTemplate('objectSnapshot', $vars);
     }
-
-    /**
-     * @param ObjectBuilder $builder
-     *
-     * @return string
-     */
-    public function preUpdate(ObjectBuilder $builder)
-    {
-        if ($this->behavior->getParameter(SnapshottableBehavior::PARAMETER_DISALLOW_UPDATE) == 'true')
-        {
-            return 'throw new \RuntimeException(\'Updating this model is disallowed by "snapshottable" behavior\\\'s configuration!\');';
-        }
-
-        return '';
-    }
 }
