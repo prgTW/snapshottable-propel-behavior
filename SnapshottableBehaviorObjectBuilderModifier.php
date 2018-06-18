@@ -114,7 +114,7 @@ class SnapshottableBehaviorObjectBuilderModifier
     {
         if ($this->behavior->getParameter(SnapshottableBehavior::PARAMETER_DISALLOW_UPDATE) == 'true')
         {
-            return 'throw new \RuntimeException(\'Updating this model is disallowed by "snapshottable" behavior\'s configuration!\');';
+            return 'throw new \RuntimeException(\'Updating this model is disallowed by "snapshottable" behavior\\\'s configuration!\');';
         }
 
         return '';
