@@ -21,6 +21,7 @@ class SnapshottableBehavior extends Behavior
     const PARAMETER_REFERENCE_COLUMN                   = 'reference_column';
     const PARAMETER_SNAPSHOT_AT_COLUMN                 = 'snapshot_at_column';
     const PARAMETER_LOG_SNAPSHOT_AT                    = 'log_snapshot_at';
+    const PARAMETER_DISALLOW_UPDATE                    = 'disallow_update';
 
     /** @var array */
     protected $parameters = [
@@ -32,6 +33,7 @@ class SnapshottableBehavior extends Behavior
         self::PARAMETER_LOG_SNAPSHOT_AT                    => 'true',
         self::PARAMETER_REFERENCE_COLUMN                   => 'foreign_id',
         self::PARAMETER_SNAPSHOT_AT_COLUMN                 => 'snapshot_at',
+        self::PARAMETER_DISALLOW_UPDATE                    => 'true',
     ];
 
     /** @var Table */
