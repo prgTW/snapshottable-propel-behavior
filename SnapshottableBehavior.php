@@ -142,6 +142,9 @@ class SnapshottableBehavior extends Behavior
             $newColumnDomain->setSize($domain->getSize());
             $newColumnDomain->setSqlType($domain->getSqlType());
             $newColumnDomain->setType($domain->getType());
+            foreach ($domain->getVendorInformation() as $vendorInfo) {
+				$newColumnDomain->addVendorInfo($vendorInfo);
+			}
 
             $columnInSnapshotTable = new Column;
             $columnInSnapshotTable->setDomain($newColumnDomain);
@@ -155,6 +158,9 @@ class SnapshottableBehavior extends Behavior
             $columnInSnapshotTable->setScale($column->getScale());
             $columnInSnapshotTable->setSize($column->getSize());
             $columnInSnapshotTable->setValueSet($column->getValueSet());
+			foreach ($column->getVendorInformation() as $vendorInfo) {
+				$columnInSnapshotTable->addVendorInfo($vendorInfo);
+			}
             $snapshotTable->addColumn($columnInSnapshotTable);
         }
 
