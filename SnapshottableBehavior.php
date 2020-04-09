@@ -9,7 +9,6 @@ use Propel\Generator\Model\Domain;
 use Propel\Generator\Model\ForeignKey;
 use Propel\Generator\Model\Index;
 use Propel\Generator\Model\Table;
-use Propel\Generator\Model\Unique;
 
 class SnapshottableBehavior extends Behavior
 {
@@ -257,9 +256,9 @@ class SnapshottableBehavior extends Behavior
 
         $uniqueColumns = explode(',', $this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS));
         $uniqueColumns = array_filter(array_map('trim', $uniqueColumns));
-        $unique = new Unique;
-        $unique->setName($this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME));
-        $unique->addColumn(['name' => $this->getParameter(self::PARAMETER_REFERENCE_COLUMN)]);
+        $indexForUniqueColumns = new Index;
+        $indexForUniqueColumns->setName($this->getParameter(self::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME));
+        $indexForUniqueColumns->addColumn(['name' => $this->getParameter(self::PARAMETER_REFERENCE_COLUMN)]);
         foreach ($uniqueColumns as $uniqueColumnDef) {
             if (!preg_match('/(?P<columnName>\w+)(?:\((?P<columnSize>\d+)\))?$/uis', $uniqueColumnDef, $matches)) {
                 throw new \LogicException('');
@@ -267,13 +266,18 @@ class SnapshottableBehavior extends Behavior
 
             if (isset($matches['columnSize'])) {
                 if ($matches['columnSize'] > 0) {
-                    $unique->addColumn(['name' => $matches['columnName'], 'size' => $matches['columnSize']]);
+                    $indexForUniqueColumns->addColumn(
+                        [
+                            'name' => $matches['columnName'],
+                            'size' => $matches['columnSize'],
+                        ]
+                    );
                 }
             } else {
-                $unique->addColumn(['name' => $matches['columnName']]);
+                $indexForUniqueColumns->addColumn(['name' => $matches['columnName']]);
             }
         }
-        $snapshotTable->addUnique($unique);
+        $snapshotTable->addIndex($indexForUniqueColumns);
 
         $this->snapshotTable = $snapshotTable;
     }

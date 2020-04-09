@@ -72,14 +72,12 @@ class SnapshottableBehaviorObjectBuilderModifier
     {
         $referenceColumnName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_REFERENCE_COLUMN);
 
-        $uniqueIndexName = $this->behavior->getParameter(
-            SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME
-        );
+        $indexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
         $snapshotTable = $this->behavior->getSnapshotTable();
         $uniqueIndices = array_filter(
             $this->behavior->getSnapshotTable()->getUnices(),
-            function (Unique $i) use ($uniqueIndexName) {
-                return $uniqueIndexName === $i->getName();
+            function (Unique $i) use ($indexName) {
+                return $indexName === $i->getName();
             }
         );
         /** @var Unique $uniqueIndex */
