@@ -4,7 +4,7 @@ namespace prgTW\SnapshottableBehavior;
 
 use Propel\Generator\Builder\Om\ObjectBuilder;
 use Propel\Generator\Model\Table;
-use Propel\Generator\Model\Unique;
+use Propel\Generator\Model\Index;
 
 class SnapshottableBehaviorObjectBuilderModifier
 {
@@ -74,14 +74,14 @@ class SnapshottableBehaviorObjectBuilderModifier
 
         $indexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
         $snapshotTable = $this->behavior->getSnapshotTable();
-        $uniqueIndices = array_filter(
-            $this->behavior->getSnapshotTable()->getUnices(),
-            function (Unique $i) use ($indexName) {
+        $indices = array_filter(
+            $this->behavior->getSnapshotTable()->getIndices(),
+            function (Index $i) use ($indexName) {
                 return $indexName === $i->getName();
             }
         );
-        /** @var Unique $uniqueIndex */
-        $uniqueIndex = reset($uniqueIndices);
+        /** @var Index $index */
+        $index = reset($indices);
         $referenceColumn = $this->behavior->getSnapshotTable()->getColumn($referenceColumnName);
         $vars = [
             'primaryKeyColumnPhpName' => $this->behavior->getTable()->getFirstPrimaryKeyColumn()->getPhpName(),
@@ -92,12 +92,12 @@ class SnapshottableBehaviorObjectBuilderModifier
             'hasSnapshotClass' => $this->behavior->hasSnapshotClass(),
             'queryClassName' => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
             'uniqueColumns' => array_combine(
-                $uniqueIndex->getColumns(),
+                $index->getColumns(),
                 array_map(
                     function ($name) {
                         return $this->behavior->getSnapshotTable()->getColumn($name)->getPhpName();
                     },
-                    $uniqueIndex->getColumns()
+                    $index->getColumns()
                 )
             ),
         ];
