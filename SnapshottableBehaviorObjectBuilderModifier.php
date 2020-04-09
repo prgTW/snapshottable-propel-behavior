@@ -20,7 +20,7 @@ class SnapshottableBehaviorObjectBuilderModifier
     public function __construct(SnapshottableBehavior $behavior)
     {
         $this->behavior = $behavior;
-        $this->table    = $behavior->getTable();
+        $this->table = $behavior->getTable();
     }
 
     /**
@@ -30,9 +30,8 @@ class SnapshottableBehaviorObjectBuilderModifier
      */
     public function objectAttributes(ObjectBuilder $builder)
     {
-        if (!$this->behavior->hasSnapshotClass())
-        {
-            $snapshotTable    = $this->behavior->getSnapshotTable();
+        if (!$this->behavior->hasSnapshotClass()) {
+            $snapshotTable = $this->behavior->getSnapshotTable();
             $stubQueryBuilder = $builder->getNewStubQueryBuilder($snapshotTable);
             $builder->declareClassFromBuilder($stubQueryBuilder);
         }
@@ -49,14 +48,11 @@ class SnapshottableBehaviorObjectBuilderModifier
      */
     public function objectMethods(ObjectBuilder $builder)
     {
-        if ($this->behavior->hasSnapshotClass())
-        {
+        if ($this->behavior->hasSnapshotClass()) {
             $snapshotClass = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_CLASS);
             $builder->declareClass($snapshotClass);
-        }
-        else
-        {
-            $snapshotTable     = $this->behavior->getSnapshotTable();
+        } else {
+            $snapshotTable = $this->behavior->getSnapshotTable();
             $stubObjectBuilder = $builder->getNewStubObjectBuilder($snapshotTable);
             $builder->declareClassFromBuilder($stubObjectBuilder);
         }
@@ -76,29 +72,35 @@ class SnapshottableBehaviorObjectBuilderModifier
     {
         $referenceColumnName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_REFERENCE_COLUMN);
 
-        $uniqueIndexName = $this->behavior->getParameter(SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME);
-        $snapshotTable   = $this->behavior->getSnapshotTable();
-        /** @var Unique $uniqueIndex */
-        $uniqueIndex     = reset(
-            array_filter($this->behavior->getSnapshotTable()->getUnices(),
-                function (Unique $i) use ($uniqueIndexName) {
-                    return $uniqueIndexName === $i->getName();
-                }
-            )
+        $uniqueIndexName = $this->behavior->getParameter(
+            SnapshottableBehavior::PARAMETER_SNAPSHOT_UNIQUE_COLUMNS_INDEX_NAME
         );
+        $snapshotTable = $this->behavior->getSnapshotTable();
+        $uniqueIndices = array_filter(
+            $this->behavior->getSnapshotTable()->getUnices(),
+            function (Unique $i) use ($uniqueIndexName) {
+                return $uniqueIndexName === $i->getName();
+            }
+        );
+        /** @var Unique $uniqueIndex */
+        $uniqueIndex = reset($uniqueIndices);
         $referenceColumn = $this->behavior->getSnapshotTable()->getColumn($referenceColumnName);
-        $vars            = [
+        $vars = [
             'primaryKeyColumnPhpName' => $this->behavior->getTable()->getFirstPrimaryKeyColumn()->getPhpName(),
-            'snapshotTablePhpName'    => $this->behavior->getSnapshotTablePhpName($builder),
-            'referenceColumnPhpName'  => $referenceColumn->getPhpName(),
-            'primaryKeyColumn'        => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
-            'snapshotAtColumn'        => $this->behavior->getSnapshotAtColumn(),
-            'hasSnapshotClass'        => $this->behavior->hasSnapshotClass(),
-            'queryClassName'          => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
-            'uniqueColumns'           => array_combine($uniqueIndex->getColumns(),
-                array_map(function ($name) {
-                    return $this->behavior->getSnapshotTable()->getColumn($name)->getPhpName();
-                }, $uniqueIndex->getColumns())
+            'snapshotTablePhpName' => $this->behavior->getSnapshotTablePhpName($builder),
+            'referenceColumnPhpName' => $referenceColumn->getPhpName(),
+            'primaryKeyColumn' => $this->behavior->getTable()->getFirstPrimaryKeyColumn(),
+            'snapshotAtColumn' => $this->behavior->getSnapshotAtColumn(),
+            'hasSnapshotClass' => $this->behavior->hasSnapshotClass(),
+            'queryClassName' => $builder->getClassNameFromBuilder($builder->getNewStubQueryBuilder($snapshotTable)),
+            'uniqueColumns' => array_combine(
+                $uniqueIndex->getColumns(),
+                array_map(
+                    function ($name) {
+                        return $this->behavior->getSnapshotTable()->getColumn($name)->getPhpName();
+                    },
+                    $uniqueIndex->getColumns()
+                )
             ),
         ];
 
