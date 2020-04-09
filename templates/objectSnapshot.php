@@ -16,7 +16,7 @@ public function snapshot(ConnectionInterface $con = null)
 
 	$snapshot = (new <?php echo $queryClassName; ?>)
 		->filterBy<?php echo $referenceColumnPhpName; ?>($this->get<?php echo $primaryKeyColumnPhpName; ?>())
-<?php foreach (array_slice($uniqueColumns, 1) as $columnPhpName): ?>
+<?php foreach ($uniqueColumns as $columnPhpName): ?>
 		->filterBy<?php echo $columnPhpName; ?>($this->get<?php echo $columnPhpName; ?>())
 <?php endforeach; ?>
 		->findOneOrCreate();
