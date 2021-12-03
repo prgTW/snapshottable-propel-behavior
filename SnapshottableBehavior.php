@@ -19,7 +19,9 @@ class SnapshottableBehavior extends Behavior
     const PARAMETER_SNAPSHOT_PHPNAME                   = 'snapshot_phpname';
     const PARAMETER_REFERENCE_COLUMN                   = 'reference_column';
     const PARAMETER_SNAPSHOT_AT_COLUMN                 = 'snapshot_at_column';
+    const PARAMETER_SNAPSHOT_AT_COLUMN_INDEX_NAME      = 'snapshot_at_column_index_name';
     const PARAMETER_LOG_SNAPSHOT_AT                    = 'log_snapshot_at';
+    const PARAMETER_CREATE_INDEX_ON_SNAPSHOT_COLUMN    = 'create_index_on_snapshot_column';
 
     /** @var array */
     protected $parameters = [
@@ -31,6 +33,8 @@ class SnapshottableBehavior extends Behavior
         self::PARAMETER_LOG_SNAPSHOT_AT                    => 'true',
         self::PARAMETER_REFERENCE_COLUMN                   => 'foreign_id',
         self::PARAMETER_SNAPSHOT_AT_COLUMN                 => 'snapshot_at',
+        self::PARAMETER_SNAPSHOT_AT_COLUMN_INDEX_NAME      => 'snapshot_at',
+        self::PARAMETER_CREATE_INDEX_ON_SNAPSHOT_COLUMN    => 'false',
     ];
 
     /** @var Table */
@@ -295,6 +299,19 @@ class SnapshottableBehavior extends Behavior
             }
         }
         $snapshotTable->addIndex($indexForUniqueColumns);
+
+        if ('true' == $this->getParameter(self::PARAMETER_CREATE_INDEX_ON_SNAPSHOT_COLUMN))
+        {
+            $indexForSnapshotAtColumn = new Index;
+            $indexForSnapshotAtColumn->setName($this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN_INDEX_NAME));
+            $indexForSnapshotAtColumn->addColumn(
+                [
+                    'name' => $this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN)
+                ]
+            );
+
+            $snapshotTable->addIndex($indexForSnapshotAtColumn);
+        }
 
         $this->snapshotTable = $snapshotTable;
     }
