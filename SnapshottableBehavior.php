@@ -300,19 +300,18 @@ class SnapshottableBehavior extends Behavior
         }
         $snapshotTable->addIndex($indexForUniqueColumns);
 
-		if('true' == $this->getParameter(self::PARAMETER_CREATE_INDEX_ON_SNAPSHOT_COLUMN))
-		{
-            $snapshotAtColumn = $snapshotTable->getColumn($this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN));
-
-			$indexForSnapshotAtColumn = new Index;
-			$indexForSnapshotAtColumn->setName($this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN_INDEX_NAME));
-			$indexForSnapshotAtColumn->addColumn(
+        if ('true' == $this->getParameter(self::PARAMETER_CREATE_INDEX_ON_SNAPSHOT_COLUMN))
+        {
+            $indexForSnapshotAtColumn = new Index;
+            $indexForSnapshotAtColumn->setName($this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN_INDEX_NAME));
+            $indexForSnapshotAtColumn->addColumn(
                 [
-				    'name' => $this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN),
-                    'size' => null !== $snapshotAtColumn ? $snapshotAtColumn->getSize() : null,
-			    ]
+                    'name' => $this->getParameter(self::PARAMETER_SNAPSHOT_AT_COLUMN)
+                ]
             );
-		}
+
+            $snapshotTable->addIndex($indexForSnapshotAtColumn);
+        }
 
         $this->snapshotTable = $snapshotTable;
     }
