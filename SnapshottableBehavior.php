@@ -44,7 +44,7 @@ class SnapshottableBehavior extends Behavior
     private $objectBuilderModifier;
 
     /** {@inheritdoc} */
-    public function modifyDatabase()
+    public function modifyDatabase(): void
     {
         $database = $this->getDatabase();
         $tables   = $database->getTables();
@@ -65,7 +65,7 @@ class SnapshottableBehavior extends Behavior
     }
 
     /** {@inheritdoc} */
-    public function modifyTable()
+    public function modifyTable(): void
     {
         if ($this->getParameter(self::PARAMETER_SNAPSHOT_CLASS) && $this->getParameter(
                 self::PARAMETER_SNAPSHOT_TABLE
@@ -170,16 +170,23 @@ class SnapshottableBehavior extends Behavior
                 $newColumnDomain->addVendorInfo($vendorInfo);
             }
 
-            $columnInSnapshotTable = new Column;
+            $columnInSnapshotTable = new Column($column->getName());
             $columnInSnapshotTable->setDomain($newColumnDomain);
             $columnInSnapshotTable->setName($column->getName());
             $columnInSnapshotTable->setNotNull(false);
-            $columnInSnapshotTable->setDescription($column->getDescription());
+            // Propel >= 2.0.0-beta2 setters no longer accept null
+            if (null !== $column->getDescription())
+            {
+                $columnInSnapshotTable->setDescription($column->getDescription());
+            }
             $columnInSnapshotTable->setType($column->getType());
             $columnInSnapshotTable->setTypeHint($column->getTypeHint());
             $columnInSnapshotTable->setPhpName($column->getPhpName());
             $columnInSnapshotTable->setPhpSingularName($column->getPhpSingularName());
-            $columnInSnapshotTable->setScale($column->getScale());
+            if (null !== $column->getScale())
+            {
+                $columnInSnapshotTable->setScale($column->getScale());
+            }
             $columnInSnapshotTable->setSize($column->getSize());
             $columnInSnapshotTable->setValueSet($column->getValueSet());
             foreach ($column->getVendorInformation() as $vendorInfo)
@@ -406,5 +413,14 @@ class SnapshottableBehavior extends Behavior
     private function getDefaultSnapshotTableName()
     {
         return $this->getTable()->getName() . '_snapshot';
+    }
+
+    /**
+     * Propel >= 2.0.0-beta2 resolves templates from a `src/` root it cannot find in vendor/;
+     * older versions never call this method.
+     */
+    protected function getTemplatePath(string $path): string
+    {
+        return __DIR__ . '/templates/';
     }
 }

@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.5",
+        "php": ">=7.1",
         "propel/propel": "~2.0.0"
     },
     "autoload": {
