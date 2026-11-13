@@ -43,6 +43,14 @@ class SnapshottableBehavior extends Behavior
     /** @var SnapshottableBehaviorObjectBuilderModifier */
     private $objectBuilderModifier;
 
+    /**
+     * Snapshot tables are tracked here instead of in a dynamic property on Table,
+     * which is deprecated since PHP 8.2.
+     *
+     * @var \SplObjectStorage|null
+     */
+    private static $snapshotTables;
+
     /** {@inheritdoc} */
     public function modifyDatabase(): void
     {
@@ -55,7 +63,7 @@ class SnapshottableBehavior extends Behavior
                 continue;
             }
 
-            if (property_exists($table, 'isSnapshotTable'))
+            if (self::isSnapshotTable($table))
             {
                 continue;
             }
@@ -96,8 +104,8 @@ class SnapshottableBehavior extends Behavior
 
         if ($database->hasTable($snapshotTableName))
         {
-            $this->snapshotTable                  = $database->getTable($snapshotTableName);
-            $this->snapshotTable->isSnapshotTable = true;
+            $this->snapshotTable = $database->getTable($snapshotTableName);
+            self::markAsSnapshotTable($this->snapshotTable);
 
             return;
         }
@@ -136,7 +144,7 @@ class SnapshottableBehavior extends Behavior
             );
             $snapshotTable->addBehavior($timestampableBehavior);
         }
-        $snapshotTable->isSnapshotTable = true;
+        self::markAsSnapshotTable($snapshotTable);
 
         $idColumn = $snapshotTable->addColumn(
             [
@@ -321,6 +329,20 @@ class SnapshottableBehavior extends Behavior
         }
 
         $this->snapshotTable = $snapshotTable;
+    }
+
+    private static function markAsSnapshotTable(Table $table)
+    {
+        if (null === self::$snapshotTables)
+        {
+            self::$snapshotTables = new \SplObjectStorage();
+        }
+        self::$snapshotTables[$table] = true;
+    }
+
+    private static function isSnapshotTable(Table $table)
+    {
+        return null !== self::$snapshotTables && isset(self::$snapshotTables[$table]);
     }
 
     /**

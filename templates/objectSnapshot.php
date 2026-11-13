@@ -8,7 +8,7 @@
  *
  * @return <?php echo $snapshotTablePhpName ?> The object based on this object
  */
-public function snapshot(ConnectionInterface $con = null)
+public function snapshot(?ConnectionInterface $con = null)
 {
 	if ($this->isNew()) {
 		throw new PropelException('New objects cannot be snapshoted. You must save the current object before calling snapshot().');
