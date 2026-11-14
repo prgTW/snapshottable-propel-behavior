@@ -43,8 +43,16 @@ class SnapshottableBehavior extends Behavior
     /** @var SnapshottableBehaviorObjectBuilderModifier */
     private $objectBuilderModifier;
 
+    /**
+     * Snapshot tables are tracked here instead of in a dynamic property on Table,
+     * which is deprecated since PHP 8.2.
+     *
+     * @var \SplObjectStorage|null
+     */
+    private static $snapshotTables;
+
     /** {@inheritdoc} */
-    public function modifyDatabase()
+    public function modifyDatabase(): void
     {
         $database = $this->getDatabase();
         $tables   = $database->getTables();
@@ -55,7 +63,7 @@ class SnapshottableBehavior extends Behavior
                 continue;
             }
 
-            if (property_exists($table, 'isSnapshotTable'))
+            if (self::isSnapshotTable($table))
             {
                 continue;
             }
@@ -65,7 +73,7 @@ class SnapshottableBehavior extends Behavior
     }
 
     /** {@inheritdoc} */
-    public function modifyTable()
+    public function modifyTable(): void
     {
         if ($this->getParameter(self::PARAMETER_SNAPSHOT_CLASS) && $this->getParameter(
                 self::PARAMETER_SNAPSHOT_TABLE
@@ -96,8 +104,8 @@ class SnapshottableBehavior extends Behavior
 
         if ($database->hasTable($snapshotTableName))
         {
-            $this->snapshotTable                  = $database->getTable($snapshotTableName);
-            $this->snapshotTable->isSnapshotTable = true;
+            $this->snapshotTable = $database->getTable($snapshotTableName);
+            self::markAsSnapshotTable($this->snapshotTable);
 
             return;
         }
@@ -136,7 +144,7 @@ class SnapshottableBehavior extends Behavior
             );
             $snapshotTable->addBehavior($timestampableBehavior);
         }
-        $snapshotTable->isSnapshotTable = true;
+        self::markAsSnapshotTable($snapshotTable);
 
         $idColumn = $snapshotTable->addColumn(
             [
@@ -170,16 +178,23 @@ class SnapshottableBehavior extends Behavior
                 $newColumnDomain->addVendorInfo($vendorInfo);
             }
 
-            $columnInSnapshotTable = new Column;
+            $columnInSnapshotTable = new Column($column->getName());
             $columnInSnapshotTable->setDomain($newColumnDomain);
             $columnInSnapshotTable->setName($column->getName());
             $columnInSnapshotTable->setNotNull(false);
-            $columnInSnapshotTable->setDescription($column->getDescription());
+            // Propel >= 2.0.0-beta2 setters no longer accept null
+            if (null !== $column->getDescription())
+            {
+                $columnInSnapshotTable->setDescription($column->getDescription());
+            }
             $columnInSnapshotTable->setType($column->getType());
             $columnInSnapshotTable->setTypeHint($column->getTypeHint());
             $columnInSnapshotTable->setPhpName($column->getPhpName());
             $columnInSnapshotTable->setPhpSingularName($column->getPhpSingularName());
-            $columnInSnapshotTable->setScale($column->getScale());
+            if (null !== $column->getScale())
+            {
+                $columnInSnapshotTable->setScale($column->getScale());
+            }
             $columnInSnapshotTable->setSize($column->getSize());
             $columnInSnapshotTable->setValueSet($column->getValueSet());
             foreach ($column->getVendorInformation() as $vendorInfo)
@@ -316,6 +331,20 @@ class SnapshottableBehavior extends Behavior
         $this->snapshotTable = $snapshotTable;
     }
 
+    private static function markAsSnapshotTable(Table $table)
+    {
+        if (null === self::$snapshotTables)
+        {
+            self::$snapshotTables = new \SplObjectStorage();
+        }
+        self::$snapshotTables[$table] = true;
+    }
+
+    private static function isSnapshotTable(Table $table)
+    {
+        return null !== self::$snapshotTables && isset(self::$snapshotTables[$table]);
+    }
+
     /**
      * @return Table
      */
@@ -406,5 +435,15 @@ class SnapshottableBehavior extends Behavior
     private function getDefaultSnapshotTableName()
     {
         return $this->getTable()->getName() . '_snapshot';
+    }
+
+    /**
+     * Propel >= 2.0.0-beta2 finds templates only in its own `src/<ns>/` + `templates/<ns>/` layout,
+     * which this package does not use; older versions never call this method.
+     * __DIR__ rather than $path keeps subclasses defined elsewhere on these templates.
+     */
+    protected function getTemplatePath(string $path): string
+    {
+        return __DIR__ . '/templates/';
     }
 }
