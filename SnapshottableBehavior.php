@@ -438,8 +438,9 @@ class SnapshottableBehavior extends Behavior
     }
 
     /**
-     * Propel >= 2.0.0-beta2 resolves templates from a `src/` root it cannot find in vendor/;
-     * older versions never call this method.
+     * Propel >= 2.0.0-beta2 finds templates only in its own `src/<ns>/` + `templates/<ns>/` layout,
+     * which this package does not use; older versions never call this method.
+     * __DIR__ rather than $path keeps subclasses defined elsewhere on these templates.
      */
     protected function getTemplatePath(string $path): string
     {
